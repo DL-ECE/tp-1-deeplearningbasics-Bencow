@@ -149,7 +149,7 @@ def d_sigmoid(M: np.array)-> np.array:
 def softmax(X: np.array)-> np.array:
     """Apply a softmax to the input array"""
     A = np.exp(X)
-    B = np.sum(np.exp(X), axis=1).reshape(-1, 1)
+    B = np.sum(A, axis=1).reshape(-1, 1)
     C = A/B
     return C
 
@@ -212,7 +212,7 @@ class FFNN:
             nlines_prev, ncols_prev = self.layers[i - 1].Z.shape
             # TODO: initilize the weight matrix W in the layer with a random normal distribution
             # its shape should be (ncols_prev, nnodes)
-            layer.W = np.random.normal(0, 1, (ncols_prev, nnodes))
+            layer.W = np.random.randn(ncols_prev, nnodes)
             # TODO: initilize the matrix Z in the layer with a matrix containing only zeros
             # its shape should be (nlines_prev, nnodes)
             layer.Z = np.zeros((nlines_prev, nnodes))
@@ -255,8 +255,10 @@ class FFNN:
         self.layers[-1].D = D_out.T
         # TODO: Compute the D matrix for all the layers (excluding the first one which corresponds to the input itself)
         # (you should only use self.layers[1:])
-        for i in range(self.nlayers-2, 0, -1):
-            self.one_step_backward(self.layers[i+1], self.layers[i])
+        for i in range(len(self.layers)-2, 0, -1):
+            p = self.layers[i+1]
+            c = self.layers[i]
+            _ = self.one_step_backward(self.layers[i+1], self.layers[i])
             
     
     def update_weights(self, cur_layer: Layer, next_layer: Layer)-> Layer:
@@ -368,7 +370,7 @@ assert X_test.shape[0] % minibatch_size == 0
 print(y_train.shape)
 
 if __name__ == "__main__":
-    err = ffnn.train(nepoch, X_train, target_to_one_hot(y_train), X_test, target_to_one_hot(y_test))
+    err = ffnn.train(nepoch, normalize_data(X_train), target_to_one_hot(y_train), normalize_data(X_test), target_to_one_hot(y_test))
 
 """## Error analysis (2 pts)
 
