@@ -264,13 +264,13 @@ class FFNN:
     def update_weights(self, cur_layer: Layer, next_layer: Layer)-> Layer:
         # TODO: Update the W matrix of the next_layer using the current_layer and the learning rate
         # and return the next_layer
-        next_layer.W = - self.learning_rate * (np.dot(next_layer.D, cur_layer.Z)).T
+        next_layer.W += - self.learning_rate * (np.dot(next_layer.D, cur_layer.Z)).T
         return next_layer
     
     def update_all_weights(self)-> None:
         # TODO: Update all W matrix using the update_weights function
         for i in range(1, self.nlayers-1):
-            self.update_weights(self.layers[i], self.layers[i+1])
+            _ = self.update_weights(self.layers[i], self.layers[i+1])
             
         
     def get_error(self, y_pred: np.array, y_batch: np.array)-> float:
@@ -302,8 +302,6 @@ class FFNN:
             
         
     def train(self, nepoch, X_train, y_train, X_test, y_test)-> float:
-        #y_train=y_train.astype(int)
-        #y_test=y_test.astype(int)
 
         X_train = X_train.reshape(-1, self.minibatch_size, 784)
         y_train = y_train.reshape(-1, self.minibatch_size, 10)
@@ -313,9 +311,6 @@ class FFNN:
         
         # TODO: Get the number of batch based on X_train's shape
         nbatch = int(X_train.shape[0])
-        print(X_train.shape)
-        print(y_train.shape)
-        print(nbatch)
         error_test = 0.0
         for epoch in range(0, nepoch):
             error_sum_train = 0.0
@@ -331,23 +326,6 @@ class FFNN:
             print(f"Training accuracy: {error_sum_train / nbatch:.3f}, Test accuracy: {error_test:.3f}")
         return error_test
 
-minibatch_size = 5
-
-test = X_train.reshape(-1, minibatch_size, 784)
-print(test.shape)
-print(X_train.shape)
-n = X_train.shape[0]/minibatch_size
-print(n)
-
-nbatch = int(X_train.shape[0] / minibatch_size)
-print(nbatch)
-type(nbatch)
-
-print(y_train.shape)
-test1 = y_train.reshape(-1, minibatch_size, 10)
-print(test1.shape)
-range(4)
-
 """## Training phase (12 pts)
 
 Now, it is time to train the model !!
@@ -359,15 +337,14 @@ It's on 12 points because there is a lot of functions to fill but also we want t
 To have all the point your neural network needs to have a Test accuracy > 92 % !!
 """
 
-minibatch_size = 10
-nepoch = 10
-learning_rate = 0.1
+minibatch_size = 5
+nepoch = 15
+learning_rate = 0.15
 
-ffnn = FFNN(config=[784, 50, 50, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
+ffnn = FFNN(config=[784, 140, 140, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
 
 assert X_train.shape[0] % minibatch_size == 0
 assert X_test.shape[0] % minibatch_size == 0
-print(y_train.shape)
 
 if __name__ == "__main__":
     err = ffnn.train(nepoch, normalize_data(X_train), target_to_one_hot(y_train), normalize_data(X_test), target_to_one_hot(y_test))
