@@ -135,7 +135,7 @@ Implement the sigmoid function, its derivative and the softmax function:
 
 def sigmoid(M: np.array) -> np.array:
     """Apply a sigmoid to the input array"""
-    Y = 1 / (1 + np.exp(np.dot(M, -1)))
+    Y = 1 / (1 + np.exp(-M))
     return Y
 
 
@@ -257,33 +257,31 @@ class FFNN:
         # TODO: Compute the D matrix for all the layers (excluding the first one which corresponds to the input itself)
         # (you should only use self.layers[1:])
         for i in range(self.nlayers-2, 1, -1):
-            #print(i)
             self.one_step_backward(self.layers[i+1], self.layers[i])
             
     
     def update_weights(self, cur_layer: Layer, next_layer: Layer)-> Layer:
         # TODO: Update the W matrix of the next_layer using the current_layer and the learning rate
         # and return the next_layer
-        cur_layer.W = - self.learning_rate * np.dot(next_layer.D, cur_layer.Z)
+        next_layer.W = - self.learning_rate * (np.dot(next_layer.D, cur_layer.Z)).T
         return next_layer
     
     def update_all_weights(self)-> None:
         # TODO: Update all W matrix using the update_weights function
-        for i in range(0, self.nlayers-1):
-            print(i)
+        for i in range(1, self.nlayers-1):
             self.update_weights(self.layers[i], self.layers[i+1])
             
         
     def get_error(self, y_pred: np.array, y_batch: np.array)-> float:
         # TODO: return the accuracy on the predictions
         # the accuracy should be in the [0.0, 1.0] range
-        
-        #
-        #for i in 
-        #y_pred [10][nbatch]
-        #prediction = np.argmax(y_pred)
-        #return
-        pass
+        error = 0
+        for i in range(0, len(y_pred)):
+            pred = np.argmax(y_pred[i], 0)
+            batch = np.argmax(y_batch[i], 0)
+            if(pred == batch):
+                error = error + 1
+        return error/len(y_pred)
     
     def get_test_error(self, X: np.array, y: np.array)-> float:
         # TODO: Compute the accuracy using the get_error function
@@ -297,13 +295,14 @@ class FFNN:
             X_batch = X[i,:,:].reshape(self.minibatch_size, -1)
             y_batch = y[i,:,:].reshape(self.minibatch_size, -1)           
             # TODO: get y_pred using the forward pass
-            error_sum += None
+            y_pred = self.forward_pass(X_batch)
+            error_sum += self.get_error(y_pred, y_batch)
         return error_sum / nbatch
             
         
     def train(self, nepoch, X_train, y_train, X_test, y_test)-> float:
-        y_train=y_train.astype(int)
-        y_test=y_test.astype(int)
+        #y_train=y_train.astype(int)
+        #y_test=y_test.astype(int)
 
         X_train = X_train.reshape(-1, self.minibatch_size, 784)
         y_train = y_train.reshape(-1, self.minibatch_size, 10)
@@ -312,7 +311,9 @@ class FFNN:
         y_test = y_test.reshape(-1, self.minibatch_size, 10)
         
         # TODO: Get the number of batch based on X_train's shape
-        nbatch = int(X_train.shape[0] / self.minibatch_size)
+        nbatch = int(X_train.shape[0])
+        print(X_train.shape)
+        print(y_train.shape)
         print(nbatch)
         error_test = 0.0
         for epoch in range(0, nepoch):
@@ -341,6 +342,10 @@ nbatch = int(X_train.shape[0] / minibatch_size)
 print(nbatch)
 type(nbatch)
 
+print(y_train.shape)
+test1 = y_train.reshape(-1, minibatch_size, 10)
+print(test1.shape)
+
 """## Training phase (12 pts)
 
 Now, it is time to train the model !!
@@ -360,8 +365,10 @@ ffnn = FFNN(config=[784, 3, 3, 10], minibatch_size=minibatch_size, learning_rate
 
 assert X_train.shape[0] % minibatch_size == 0
 assert X_test.shape[0] % minibatch_size == 0
+print(y_train.shape)
 
-err = ffnn.train(nepoch, X_train, y_train, X_test, y_test)
+if __name__ == "__main__":
+    err = ffnn.train(nepoch, X_train, target_to_one_hot(y_train), X_test, target_to_one_hot(y_test))
 
 """## Error analysis (2 pts)
 
@@ -370,19 +377,20 @@ Here we use a subset of the test data to try and find some miss classification.
 It will help us understand why the neural network failed sometimes to classify images.
 """
 
-nsample = 1000
-X_demo = X_test[:nsample,:]
-y_demo = ffnn.forward_pass(X_demo)
-y_true = y_test[:nsample,:]
+if __name__ == "__main__":
+    nsample = 1000
+    X_demo = X_test[:nsample,:]
+    y_demo = ffnn.forward_pass(X_demo)
+    y_true = y_test[:nsample,:]
 
-index_to_plot = 50 
-plot_one_image(X_demo, y_true, index_to_plot)
+    index_to_plot = 50 
+    plot_one_image(X_demo, y_true, index_to_plot)
 
-# Compare to the prediction 
-prediction = np.argmax(y_demo[index_to_plot,:])
-true_target = np.argmax(y_true[index_to_plot,:])
+    # Compare to the prediction 
+    prediction = np.argmax(y_demo[index_to_plot,:])
+    true_target = np.argmax(y_true[index_to_plot,:])
 
-# is it the same number ?
+    # is it the same number ?
 
 # loop arround the demo test set and try to find a miss prediction
 for i in range(0, nsample):   
