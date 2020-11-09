@@ -247,8 +247,7 @@ class FFNN:
         # TODO: Compute the D matrix of the current layer using the previous layer and return the current layer
         #print(type(prev_layer.W))
         #print(type(prev_layer.D))
-        dot = np.dot(prev_layer.W, prev_layer.D)
-        Di = cur_layer.F * dot
+        Di = cur_layer.F * np.dot(prev_layer.W, prev_layer.D)
         cur_layer.D = Di
         return cur_layer
         
@@ -256,7 +255,7 @@ class FFNN:
         self.layers[-1].D = D_out.T
         # TODO: Compute the D matrix for all the layers (excluding the first one which corresponds to the input itself)
         # (you should only use self.layers[1:])
-        for i in range(self.nlayers-2, 1, -1):
+        for i in range(self.nlayers-2, 0, -1):
             self.one_step_backward(self.layers[i+1], self.layers[i])
             
     
@@ -277,9 +276,9 @@ class FFNN:
         # the accuracy should be in the [0.0, 1.0] range
         error = 0
         for i in range(0, len(y_pred)):
-            pred = np.argmax(y_pred[i], 0)
-            batch = np.argmax(y_batch[i], 0)
-            if(pred == batch):
+            pred = np.argmax(y_pred[i])
+            batch = np.argmax(y_batch[i])
+            if pred == batch:
                 error = error + 1
         return error/len(y_pred)
     
@@ -345,6 +344,7 @@ type(nbatch)
 print(y_train.shape)
 test1 = y_train.reshape(-1, minibatch_size, 10)
 print(test1.shape)
+range(4)
 
 """## Training phase (12 pts)
 
@@ -379,6 +379,8 @@ It will help us understand why the neural network failed sometimes to classify i
 
 if __name__ == "__main__":
     nsample = 1000
+    X_test = normalize_data(X_test)
+    y_test = target_to_one_hot(y_test)
     X_demo = X_test[:nsample,:]
     y_demo = ffnn.forward_pass(X_demo)
     y_true = y_test[:nsample,:]
