@@ -357,11 +357,11 @@ It's on 12 points because there is a lot of functions to fill but also we want t
 To have all the point your neural network needs to have a Test accuracy > 92 % !!
 """
 
-minibatch_size = 5
+minibatch_size = 10
 nepoch = 10
-learning_rate = 0.01
+learning_rate = 0.1
 
-ffnn = FFNN(config=[784, 3, 3, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
+ffnn = FFNN(config=[784, 50, 50, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
 
 assert X_train.shape[0] % minibatch_size == 0
 assert X_test.shape[0] % minibatch_size == 0
@@ -377,22 +377,21 @@ Here we use a subset of the test data to try and find some miss classification.
 It will help us understand why the neural network failed sometimes to classify images.
 """
 
-if __name__ == "__main__":
-    nsample = 1000
-    X_test = normalize_data(X_test)
-    y_test = target_to_one_hot(y_test)
-    X_demo = X_test[:nsample,:]
-    y_demo = ffnn.forward_pass(X_demo)
-    y_true = y_test[:nsample,:]
+nsample = 1000
+#X_test = normalize_data(X_test)
+#y_test = target_to_one_hot(y_test)
+X_demo = normalize_data(X_test)[:nsample,:]
+y_demo = ffnn.forward_pass(X_demo)
+y_true = target_to_one_hot(y_test)[:nsample,:]
 
-    index_to_plot = 50 
-    plot_one_image(X_demo, y_true, index_to_plot)
+index_to_plot = 50 
+plot_one_image(X_demo, y_true, index_to_plot)
 
-    # Compare to the prediction 
-    prediction = np.argmax(y_demo[index_to_plot,:])
-    true_target = np.argmax(y_true[index_to_plot,:])
+# Compare to the prediction 
+prediction = np.argmax(y_demo[index_to_plot,:])
+true_target = np.argmax(y_true[index_to_plot,:])
 
-    # is it the same number ?
+# is it the same number ?
 
 # loop arround the demo test set and try to find a miss prediction
 for i in range(0, nsample):   
