@@ -337,11 +337,11 @@ It's on 12 points because there is a lot of functions to fill but also we want t
 To have all the point your neural network needs to have a Test accuracy > 92 % !!
 """
 
-minibatch_size = 5
-nepoch = 15
-learning_rate = 0.15
+minibatch_size = 20
+nepoch = 20
+learning_rate = 0.12
 
-ffnn = FFNN(config=[784, 140, 140, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
+ffnn = FFNN(config=[784, 160, 160, 10], minibatch_size=minibatch_size, learning_rate=learning_rate)
 
 assert X_train.shape[0] % minibatch_size == 0
 assert X_test.shape[0] % minibatch_size == 0
@@ -374,11 +374,12 @@ true_target = np.argmax(y_true[index_to_plot,:])
 
 # loop arround the demo test set and try to find a miss prediction
 for i in range(0, nsample):   
-    prediction = None # Todo
-    true_target = None # Todo
+    prediction = np.argmax(y_demo[i]) # Todo
+    true_target = np.argmax(y_true[i]) # Todo
     if prediction != true_target:
         # TODO
-        
+        print((prediction, true_target))
+        plot_one_image(X_demo, y_true, i)
         # à décommenter quand on exporte en py
         pass
 
